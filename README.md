@@ -1,6 +1,38 @@
+## GA-mart
+
+![GA-MART](./image/ga-mart.png)
+
 # Supermarket React Website
 
 This is a simple **Supermarket React Website** built with **React**. The website allows users to browse a variety of supermarket products, add them to the shopping cart, and view the total price of their purchase.
+
+---
+
+# Entity Relationship (ER) Diagram ERD :
+
+![ERD](./image/erd.png)
+
+## Relation
+
+- **One to one relation**: each user have one cart.
+- **One to many relation**:each user can have many orders.
+- **One to many**: each cart have one or many product.
+
+---
+
+# wireframe
+
+## our wireframe:
+
+![wireframe](./image/wireframe.png)
+
+---
+
+# Component hierarchy:
+
+## components that we need:
+
+![Component hierarchy](./image/Componenthierarchy.png)
 
 ---
 
@@ -20,7 +52,5 @@ This is a simple **Supermarket React Website** built with **React**. The website
 - **React Router**: For page navigation.
 - **CSS**: For styling the app (or you can use CSS frameworks like Bootstrap or Material UI).
 - **useState** and **useEffect**: For state management and side effects.
-  
----
 
- 
+---
