@@ -2,26 +2,31 @@ const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
 
-// const AuthRouter = require('./routes/AuthRouter')
-// const PostRouter = require('./routes/PostRouter')
-const CartRouter = require('./routes/CartRouter')
-const ProductRouter = require('./routes/ProductRouter')
+const userRoutes = require('./routes/userRoutes');
+
+const orderRoutes = require('./routes/orderRoutes');
+
 
 const PORT = process.env.PORT || 3001
 
 const db = require('./db')
 
 const app = express()
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-app.use(cors())
+
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-// app.use('/auth', AuthRouter)
-// app.use('/posts', PostRouter)
-app.use('/cart', CartRouter)
-app.use('/product', ProductRouter)
+app.use('/users', userRoutes);
+
+app.use('/orders', orderRoutes);
+
 
 app.use('/', (req, res) => {
   res.send(`Connected!`)
