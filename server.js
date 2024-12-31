@@ -2,9 +2,11 @@ const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
 
-const userRoutes = require('./routes/userRoutes');
 
-const orderRoutes = require('./routes/orderRoutes');
+const userRoutes = require('./routes/userRouter');
+const productRoutes = require('./routes/productRouter');
+const cartRoutes = require('./routes/cartRouter');
+const orderRoutes = require('./routes/orderRouter');
 
 
 const PORT = process.env.PORT || 3001
@@ -24,8 +26,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/users', userRoutes);
-
 app.use('/orders', orderRoutes);
+app.use('/products', productRoutes);
+app.use('/carts', cartRoutes);
+
 
 
 app.use('/', (req, res) => {
