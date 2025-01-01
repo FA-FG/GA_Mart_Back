@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const { Cart } = require('../models');
 const middleware = require('../middleware');
 
 const createUser = async (req, res) => {
@@ -12,6 +13,9 @@ const createUser = async (req, res) => {
       const user = await User.create({ username, email, passwordDigest, profileImg });
       res.status(200).send(user);
     }
+
+    
+
   } catch (error) {
     throw error;
   }
@@ -54,19 +58,33 @@ const deleteUser = async (req, res) => {
 };
 
 const registerUser = async (req, res) => { 
-    try { 
-        const { username, email, password, profileImg } = req.body; 
-        const passwordDigest = await middleware.hashPassword(password); 
-        const existingUser = await User.findOne({ email }); 
-        if (existingUser) { 
-            return res.status(400).send('A user with that email has already been registered!'); 
-        } else { 
-            const user = await User.create({ username, email, passwordDigest, profileImg }); 
-            res.status(200).send(user); 
-        } 
-    } catch (error) { 
-        throw error; 
+  try { 
+    const { username, email, password, profileImg } = req.body; 
+    const passwordDigest = await middleware.hashPassword(password); 
+
+    // Check if a user with the same email already exists
+    const existingUser = await User.findOne({ email }); 
+    if (existingUser) { 
+      return res.status(400).send('A user with that email has already been registered!'); 
+    } else { 
+      // Create the user in the database
+      const user = await User.create({ username, email, passwordDigest, profileImg });
+
+      // Now create a cart for the user
+      const cart = await Cart.create({
+        userId: user._id,  // Associate the cart with the newly created user
+        productIds: []     // Initially, the cart will be empty
+      });
+
+      // Send the user and cart details in the response
+      res.status(200).send({
+        user,
+        cart
+      }); 
     } 
+  } catch (error) { 
+    res.status(500).send({ error: error.message });
+  } 
 };
 
 const loginUser = async (req, res) => { 

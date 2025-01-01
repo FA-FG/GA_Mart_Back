@@ -22,22 +22,53 @@ const getCart = async (req, res) => {
   }
 };
 
-const addProductToCart = async (req, res) => {
+
+
+const addToCart = async (req, res) => {
   try {
-    const cart = await Cart.findById(req.params.id);
-    if (!cart) {
-      return res.status(404).send('Cart not found');
+    const { productId, quantity } = req.body;  // Assuming the body contains productId and quantity
+    const { userId } = req.params; // Get userId from URL parameter
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
     }
-    const product = await Product.findById(req.body.productId);
+
+    // Check if the product exists
+    const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).send('Product not found');
     }
-    cart.productIds.push(product._id);
+
+    // Find or create the user's cart
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      // Create a new cart if none exists
+      cart = new Cart({ userId, productIds: [] });
+    }
+
+    // Add product to the cart (without duplicating)
+    const existingProductIndex = cart.productIds.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+    if (existingProductIndex !== -1) {
+      // Update the quantity if product already exists
+      cart.productIds[existingProductIndex].quantity += quantity;
+    } else {
+      // Add new product to the cart
+      cart.productIds.push({ productId, quantity });
+    }
+
     await cart.save();
     res.status(200).send(cart);
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
+};
+
+module.exports = {
+  addToCart,
 };
 
 const removeProductFromCart = async (req, res) => {
@@ -60,6 +91,6 @@ const removeProductFromCart = async (req, res) => {
 module.exports = {
   createCart,
   getCart,
-  addProductToCart,
+  addToCart,
   removeProductFromCart
 };
