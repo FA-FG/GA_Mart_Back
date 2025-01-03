@@ -1,9 +1,25 @@
-const { Order } = require('../models');
+const { Order, Cart, User, Product } = require('../models')
 const middleware = require('../middleware');
 
 const createOrder = async (req, res) => {
   try {
-    const order = await Order.create(req.body);
+    const { userId, cartId, items, totalPrice } = req.body;
+
+    // Check if the cart exists
+    const cart = await Cart.findById(cartId);
+    if (!cart) {
+      return res.status(404).send('Cart not found');
+    }
+
+    // Create the order with the items and total price
+    const order = new Order({
+      userId,
+      cartId,
+      items,
+      totalPrice,
+    });
+
+    await order.save();
     res.status(201).send(order);
   } catch (error) {
     res.status(400).send({ error: error.message });

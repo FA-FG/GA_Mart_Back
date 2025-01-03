@@ -1,4 +1,5 @@
-const { Cart, Product } = require('../models');
+const { Cart, Product , User} = require('../models');
+
 const middleware = require('../middleware');
 
 const createCart = async (req, res) => {

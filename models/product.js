@@ -1,9 +1,7 @@
-
-
 const { Schema } = require('mongoose')
 
 
-// Updated Product Schema
+
 const productSchema = new Schema({
   name: {
     type: String,

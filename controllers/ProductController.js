@@ -45,10 +45,19 @@ const deleteProduct = async (req, res) => {
     res.status(400).send({ error: error.message });
   }
 };
+const getAllProducts = async (req, res) => {
+    try {
+      const products = await Product.find(); // Fetch all products from the database
+      res.status(200).send(products); // Send the list of products in the response
+    } catch (error) {
+      res.status(400).send({ error: error.message }); // Handle any errors
+    }
+  };
 
 module.exports = {
   createProduct,
   getProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getAllProducts
 };
