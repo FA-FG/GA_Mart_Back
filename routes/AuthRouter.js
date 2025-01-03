@@ -4,15 +4,22 @@ const middleware = require('../middleware')
 
 router.post('/login', controller.Login)
 router.post('/register', controller.Register)
+router.get('/profile',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.getUser,
+)
+
 router.put(
   '/update/:user_id',
   middleware.stripToken,
   middleware.verifyToken,
   controller.UpdatePassword
-)
+) 
+
 router.get(
   '/session',
-  middleware.stripToken,
+  middleware.stripToken, 
   middleware.verifyToken,
   controller.CheckSession
 )

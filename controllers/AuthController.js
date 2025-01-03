@@ -1,4 +1,5 @@
 const { User } = require('../models')
+const { Cart } = require('../models')
 const middleware = require('../middleware')
 
 const Register = async (req, res) => { 
@@ -19,7 +20,7 @@ const Register = async (req, res) => {
         userId: user._id,  // Associate the cart with the newly created user
         productIds: []     // Initially, the cart will be empty
       });
-
+ 
       // Send the user and cart details in the response
       res.status(200).send({
         user,
@@ -58,6 +59,18 @@ const Login = async (req, res) => {
     res.status(401).send({ status: 'Error', msg: 'An error has occurred logging in!' })
   }
 }
+
+const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(res.locals.payload.id);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+};
 
 const UpdatePassword = async (req, res) => {
   try {
@@ -100,6 +113,7 @@ const CheckSession = async (req, res) => {
 module.exports = {
   Register,
   Login,
+  getUser,
   UpdatePassword,
   CheckSession
 }
