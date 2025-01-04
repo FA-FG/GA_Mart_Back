@@ -3,32 +3,32 @@ const logger = require('morgan')
 const cors = require('cors')
 
 
-const userRoutes = require('./routes/userRouter');
-const productRoutes = require('./routes/productRouter');
-const cartRoutes = require('./routes/cartRouter');
-const orderRoutes = require('./routes/orderRouter');
+const AuthRoutes = require('./routes/AuthRouter');
+const productRoutes = require('./routes/ProductRouter');
+const cartRoutes = require('./routes/CartRouter');
+const orderRoutes = require('./routes/OrderRouter');
 
 
-const PORT = process.env.PORT || 3001
+
+const PORT = process.env.PORT || 5000
 
 const db = require('./db')
 
 const app = express()
-app.use(cors({
-  origin: 'http://localhost:5174', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
 
+app.use(cors())
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.use('/users', userRoutes);
+app.use('/auth', AuthRoutes);
 app.use('/orders', orderRoutes);
-app.use('/products', productRoutes);
-app.use('/carts', cartRoutes);
+app.use('/products', productRoutes); 
+app.use('/cart', cartRoutes);
 
 
 
