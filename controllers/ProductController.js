@@ -1,63 +1,83 @@
-const { Product } = require('../models');
-const middleware = require('../middleware');
+const { Product } = require('../models')
 
-const createProduct = async (req, res) => {
+const addProduct = async (req, res) => {
+  console.log('addProduct endpoint hit')
   try {
-    const product = await Product.create(req.body);
-    res.status(201).send(product);
+    const { name, quantity, unit, price, image, description } = req.body
+    const newProduct = new Product({
+      name,
+      quantity,
+      unit,
+      price,
+      image,
+      description
+    })
+    if (newProduct.image === '')
+      newProduct.image =
+        'https://previews.123rf.com/images/rusyach/rusyach2302/rusyach230200328/199236110-international-day-of-peace-white-dove-on-a-green-vertical-poster-peace-to-ukraine-vector.jpg'
+    await newProduct.save()
+    res.status(201).json({ message: 'Product added successfully!' })
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error adding product.' })
   }
-};
+}
 
-const getProduct = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).send('Product not found');
-    }
-    res.status(200).send(product);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
-
+//Update Product
 const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!product) {
-      return res.status(404).send('Product not found');
-    }
-    res.status(200).send(product);
+    const { name, quantity, unit, price, image, description } = req.body
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { name, quantity, unit, price, image, description },
+      { new: true }
+    )
+    res.json({
+      message: 'Product updated successfully!',
+      product: updatedProduct
+    })
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error updating product.' })
   }
-};
+}
 
+//Delete Product
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).send('Product not found');
-    }
-    res.status(200).send({ message: 'Product deleted successfully' });
+    await Product.findByIdAndDelete(req.params.id)
+    res.status(200).json({ message: 'Product deleted successfully!' })
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error deleting product.' })
   }
-};
-const getAllProducts = async (req, res) => {
-    try {
-      const products = await Product.find(); // Fetch all products from the database
-      res.status(200).send(products); // Send the list of products in the response
-    } catch (error) {
-      res.status(400).send({ error: error.message }); // Handle any errors
+}
+
+//Get All Products
+const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+    res.json(products)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching products.' })
+  }
+}
+
+//Get Product by ID
+const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+    if (product) {
+      res.json(product)
+    } else {
+      res.status(404).json({ message: 'Product not found.' })
     }
-  };
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching product.' })
+  }
+}
 
 module.exports = {
-  createProduct,
-  getProduct,
+  addProduct,
   updateProduct,
   deleteProduct,
-  getAllProducts
-};
+  getProducts,
+  getProductById
+}
