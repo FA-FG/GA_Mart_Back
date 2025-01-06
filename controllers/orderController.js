@@ -1,70 +1,58 @@
-const { Order, Cart, User, Product } = require('../models')
-const middleware = require('../middleware');
+const { Order, Cart } = require('../models')
 
+//Create Order
 const createOrder = async (req, res) => {
   try {
-    const { userId, cartId, items, totalPrice } = req.body;
+    const { cartId, totalPrice, items } = req.body
+    const cart = await Cart.findById(cartId)
 
-    // Check if the cart exists
-    const cart = await Cart.findById(cartId);
-    if (!cart) {
-      return res.status(404).send('Cart not found');
+    if (!cart || cart.userId.toString() !== res.locals.userId) {
+      return res.status(400).json({ message: 'Invalid cart.' })
     }
 
-    // Create the order with the items and total price
-    const order = new Order({
-      userId,
+    const newOrder = new Order({
+      userId: res.locals.userId,
       cartId,
-      items,
       totalPrice,
-    });
+      items
+    })
 
-    await order.save();
-    res.status(201).send(order);
+    await newOrder.save()
+
+    cart.items = []
+    await cart.save()
+    res
+      .status(201)
+      .json({ message: 'Order created successfully!', order: newOrder })
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error creating order.' })
   }
-};
+}
 
-const getOrder = async (req, res) => {
+//Get All Orders (Admin only)
+const getAllOrders = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).send('Order not found');
-    }
-    res.status(200).send(order);
+    const orders = await Order.find().populate('userId').populate('cartId')
+    res.json(orders)
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error fetching orders.' })
   }
-};
+}
 
-const updateOrder = async (req, res) => {
+//Get User Orders
+const getUserOrders = async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!order) {
-      return res.status(404).send('Order not found');
-    }
-    res.status(200).send(order);
+    const orders = await Order.find({ userId: res.locals.userId }).populate(
+      'cartId'
+    )
+    res.json(orders)
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).json({ message: 'Error fetching user orders.' })
   }
-};
-
-const deleteOrder = async (req, res) => {
-  try {
-    const order = await Order.findByIdAndDelete(req.params.id);
-    if (!order) {
-      return res.status(404).send('Order not found');
-    }
-    res.status(200).send({ message: 'Order deleted successfully' });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
+}
 
 module.exports = {
   createOrder,
-  getOrder,
-  updateOrder,
-  deleteOrder
-};
+  getAllOrders,
+  getUserOrders
+}

@@ -24,6 +24,7 @@ const comparePassword = async (password, storedPassword) => {
 const createToken = (payload) => {
   // Accepts a payload with which to create the token
   let token = jwt.sign(payload, APP_SECRET)
+  console.log('Token created with payload:', payload)
   // Generates the token and encrypts it, returns the token when the process finishes
   return token
 }
@@ -31,6 +32,7 @@ const createToken = (payload) => {
 const stripToken = (req, res, next) => {
   try {
     const token = req.headers['authorization'].split(' ')[1]
+    console.log('Token:', token)
     // Gets the token from the request headers {authorization: Bearer Some-Token}
     // Splits the value of the authorization header
     if (token) {
@@ -47,13 +49,15 @@ const stripToken = (req, res, next) => {
 
 const verifyToken = (req, res, next) => {
   const { token } = res.locals
+  console.log('Token to verify:', token)
   // Gets the token stored in the request lifecycle state
   try {
     let payload = jwt.verify(token, APP_SECRET)
+    console.log('Token payload:', payload)
     // Verifies the token is legit
     if (payload) {
-      res.locals.payload = payload // Passes the decoded payload to the next function
-      // Calls the next function if the token is valid
+      res.locals.payload = payload
+      res.locals.userId = payload.userId
       return next()
     }
     res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
@@ -63,10 +67,37 @@ const verifyToken = (req, res, next) => {
   }
 }
 
+const isLoggedIn = (req) => {
+  const token = req.headers['authorization']?.split(' ')[1]
+  if (!token) {
+    return false
+  }
+
+  try {
+    // Verify the token using the APP_SECRET
+    const payload = jwt.verify(token, APP_SECRET)
+    return !!payload
+  } catch (error) {
+    console.log(error)
+    return false
+  }
+}
+
+// Middleware to check if the user is authenticated and is an admin
+const adminCheck = (req, res, next) => {
+  if (res.locals.payload.role === 'admin') {
+    console.log('role is :', res.locals.payload.role)
+    return next()
+  }
+  return res.status(403).json({ message: 'Access denied. Admins only.' })
+}
+
 module.exports = {
   hashPassword,
   comparePassword,
   createToken,
   stripToken,
-  verifyToken
+  verifyToken,
+  isLoggedIn,
+  adminCheck
 }
