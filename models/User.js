@@ -1,6 +1,6 @@
 const { Schema } = require('mongoose')
 
-const userSchema = new Schema({
+const userSchema = Schema({
   username: {
     type: String,
     required: true
@@ -15,10 +15,13 @@ const userSchema = new Schema({
   },
   profileImg: {
     type: String,
-    default: ''
+    default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
   }
-},
-{ timestamps: true }
-)
+})
 
 module.exports = userSchema

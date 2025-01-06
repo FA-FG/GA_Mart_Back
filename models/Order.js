@@ -1,12 +1,12 @@
-const { Schema } = require('mongoose');
+const { Schema } = require('mongoose')
 
-const orderSchema = new Schema({
+const orderSchema = Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  cartId: { 
+  cartId: {
     type: Schema.Types.ObjectId,
     ref: 'Cart',
     required: true
@@ -19,22 +19,31 @@ const orderSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  totalPrice: { 
-    type: Number, 
+  totalPrice: {
+    type: Number,
     required: true
   },
-  items: [  // New field to store the order items
+  items: [
     {
-      productId: { 
-        type: Schema.Types.ObjectId, 
+      productId: {
+        type: Schema.Types.ObjectId,
         ref: 'Product',
         required: true
       },
-      name: { type: String, required: true },
-      price: { type: Number, required: true },
-      quantity: { type: Number, required: true }
+      name: {
+        type: String,
+        required: true
+      },
+      price: {
+        type: Number,
+        required: true
+      },
+      quantity: {
+        type: Number,
+        required: true
+      }
     }
   ]
-});
+})
 
-module.exports = orderSchema;
+module.exports = orderSchema
